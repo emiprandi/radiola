@@ -1,0 +1,78 @@
+.container {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: lighter;
+  padding: 10px 15px;
+}
+
+.artist {
+  color: #8A959A;
+  font-size: 10px;
+  line-height: 10px;
+  margin-bottom: 5px;
+  padding-left: 33px;
+  text-transform: uppercase;
+}
+
+.song {
+  height: 22px;
+  margin-bottom: 20px;
+}
+.heart {
+  float: left;
+  width: 23px;
+  height: 20px;
+}
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 20px;
+  color: #59686F;
+  float: right;
+  width: calc(100% - 33px);
+  line-height: 22px;
+  text-overflow: ellipsis;
+}
+
+.progressBar {
+  background-color: #F3F4F4;
+  height: 2px;
+  overflow: hidden;
+}
+.currentTimeBar {
+  background-color: #3EC8E8;
+  height: 2px;
+  float: left;
+}
+
+.times {
+  height: 10px;
+  margin: 5px 0 18px 0;
+  color: #8A959A;
+  font-size: 10px;
+  line-height: 10px;
+}
+.currentTimeNum {
+  float: left;
+}
+.trackDuration {
+  float: right;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+.slot {
+  flex: 1;
+  text-align: center;
+}
+.mainControl {
+  width: 46px;
+  height: 48px;
+  cursor: pointer;
+}
+.secondaryControl {
+  width: 20px;
+  height: 22px;
+  cursor: pointer;
+}
