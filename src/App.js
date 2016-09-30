@@ -17,7 +17,7 @@ class App extends React.Component {
       connected: false,
       playlist: [],
       currentSong: {},
-      playingTime: '0:00',
+      playingTime: 0,
       playing: false
     };
     this._connectHandler = this._connectHandler.bind(this);
@@ -37,25 +37,45 @@ class App extends React.Component {
   }
 
   /*
-   * Handlers
+   * Helpers
    */
   _initializePlayer() {
     if (SC.isConnected()) {
       SC.get('/me/favorites').then(function(tracks) {
         let currentSong = this._mapTrack(tracks.shift());
+
         this.setState({
           connected: true,
           playlist: tracks,
           currentSong: currentSong
         });
+
+        this._loadCurrentSong();
       }.bind(this));
     }
   }
 
-  _mapDuration(ms) {
-    let minutes = Math.floor(ms / 60000);
-    let seconds = ((ms % 60000) / 1000).toFixed(0);
-    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+  _loadCurrentSong() {
+    return SC.stream('/tracks/' + this.state.currentSong.id).then(function(player) {
+      SCPlayer = player;
+
+      SCPlayer.on('finish', function() {
+        this.setState({
+          playing: false
+        });
+      }.bind(this));
+
+      SCPlayer.on('time', function() {
+        this.setState({
+          playingTime: SCPlayer.currentTime()
+        });
+      }.bind(this));
+
+    }.bind(this));
+  }
+
+  _getNextTrack() {
+    return this._mapTrack(this.state.playlist.shift());
   }
 
   _mapTrack(track) {
@@ -64,7 +84,7 @@ class App extends React.Component {
       id: track.id,
       kind: track.kind,
       title: track.title,
-      duration: this._mapDuration(track.duration),
+      duration: track.duration,
       artwork_url: artwork,
       permalink_url: track.permalink_url,
       stream_url: track.stream_url,
@@ -74,17 +94,10 @@ class App extends React.Component {
     };
   }
 
-  _getStreamForCurrentSong() {
-    SC.stream('/tracks/' + this.state.currentSong.id).then(function(player) {
-      SCPlayer = player;
-      SCPlayer.play();
 
-      this.setState({
-        playing: true
-      });
-    }.bind(this));
-  }
-
+  /*
+   * Handlers
+   */
   _connectHandler(e) {
     e.preventDefault();
 
@@ -103,15 +116,15 @@ class App extends React.Component {
       this.setState({
         playing: true
       });
-    } else {
-      this._getStreamForCurrentSong();
     }
   }
 
   _playerOnPause(e) {
     e.preventDefault();
 
-    SCPlayer.pause();
+    if (SCPlayer) {
+      SCPlayer.pause();
+    }
 
     this.setState({
       playing: false
@@ -122,11 +135,23 @@ class App extends React.Component {
     e.preventDefault();
 
     if (this.state.playlist.length > 0) {
+      if (SCPlayer && this.state.playing) {
+        SCPlayer.pause();
+      }
+
       let currentSong = this._mapTrack(this.state.playlist.shift());
       this.setState({
-        playingTime: '0:00',
         currentSong: currentSong
-      });
+      }, function() {
+        this._loadCurrentSong().then(function() {
+          this.setState({
+            playingTime: 0,
+            playing: true
+          });
+
+          SCPlayer.play();
+        }.bind(this));
+      }.bind(this));
     }
   }
 
