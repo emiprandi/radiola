@@ -1,3 +1,5 @@
+<img src="https://github.com/emiprandi/radiola/raw/master/screeshot.png" width="344">
+
 # radiola
 This is a basic Soundcloud player i'm currently working on.
 
